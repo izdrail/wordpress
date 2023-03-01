@@ -1,0 +1,3 @@
+<?php
+
+//the WordPress routes

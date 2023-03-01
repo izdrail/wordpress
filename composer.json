@@ -1,0 +1,53 @@
+{
+    "name": "cornatul/wordpress",
+    "description": "A set of tools manage wordpress websites using the database ",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "role": "Developer",
+            "name": "Stefan I",
+            "email": "Stefan@cornatul.com",
+            "homepage": "https://cornatul.com/"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Cornatul\\Wordpress\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cornatul\\Wordpress\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "guzzlehttp/guzzle": ">=7.5.0",
+        "illuminate/support": ">=9.0.0",
+        "jgrossi/corcel": "6.0.x-dev",
+        "league/html-to-markdown": "^5.2@dev",
+        "sammyjo20/saloon-cache-plugin": "^2.0",
+        "sammyjo20/saloon-laravel": "^2.0",
+        "spatie/laravel-data": ">=3.0.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.5",
+        "orchestra/testbench": "^7.0",
+        "phpunit/phpunit": "^9.5"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": false,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Cornatul\\Feeds\\FeedsServiceProvider"
+            ]
+        }
+    }
+}
