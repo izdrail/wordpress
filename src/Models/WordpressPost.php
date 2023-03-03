@@ -1,6 +1,6 @@
 <?php
 
-namespace LzoMedia\Wordpress\Models;
+namespace Cornatul\Wordpress\Models;
 
 use Carbon\Carbon;
 use Corcel\Model\Post;
@@ -35,4 +35,16 @@ use Illuminate\Database\Eloquent\Builder;
 class WordpressPost extends Post
 {
     protected $postType = 'post';
+
+    protected $table = 'wp_posts';
+
+    public function categories()
+    {
+        return $this->belongsToMany(WordpressCategory::class, 'wp_term_relationships', 'object_id', 'term_taxonomy_id');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(WordpressTag::class, 'wp_term_relationships', 'object_id', 'term_taxonomy_id');
+    }
 }
