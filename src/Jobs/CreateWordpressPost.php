@@ -1,6 +1,6 @@
 <?php
 
-namespace LzoMedia\Wordpress\Jobs;
+namespace Cornatul\Wordpress\Jobs;
 
 
 

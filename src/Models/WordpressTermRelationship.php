@@ -18,6 +18,6 @@ class WordpressTermRelationship extends Model
 
     public function termTaxonomy()
     {
-        return $this->belongsTo(TermTaxonomy::class);
+        return $this->belongsTo(WordpressTermTaxonomy::class);
     }
 }
