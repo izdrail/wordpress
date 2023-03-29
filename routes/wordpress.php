@@ -10,6 +10,6 @@ Route::group(['middleware' => ['web','auth'],'prefix' => 'wordpress', 'as' => 'w
     Route::post('/store', [WordpressController::class, 'store'])->name('site.store');
     Route::get('/delete/{id}', [WordpressController::class, 'delete'])->name('site.delete');
     Route::get('/delete/{id}', [WordpressController::class, 'delete'])->name('site.delete');
-    Route::get('/publish/{articleID}', [WordpressController::class, 'publish'])->name('article.publish');
+    Route::post('/publish/{articleID}', [WordpressController::class, 'publish'])->name('article.publish');
 
 });

@@ -4,7 +4,7 @@ namespace Cornatul\Wordpress\DTO;
 
 use Spatie\LaravelData\Data;
 
-class WordpressPostDto extends Data
+class WordpressPostDTO extends Data
 {
     /** @var string */
     public string $title;
@@ -12,9 +12,11 @@ class WordpressPostDto extends Data
     /** @var string */
     public string $content;
 
-    /** @var array */
+    /** @var string */
     public array $categories;
 
     /** @var array */
     public array $tags;
+
+    public ?array $meta;
 }

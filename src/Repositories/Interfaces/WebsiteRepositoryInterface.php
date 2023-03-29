@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Cornatul\Wordpress\Interfaces;
+namespace Cornatul\Wordpress\Repositories\Interfaces;
 
 
 
@@ -9,7 +9,7 @@ namespace Cornatul\Wordpress\Interfaces;
 use Cornatul\Wordpress\Models\WordpressWebsite;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-interface WordpressRepositoryInterface
+interface WebsiteRepositoryInterface
 {
     public function createSite(array $data): WordpressWebsite;
 
@@ -17,5 +17,5 @@ interface WordpressRepositoryInterface
 
     public function deleteSite(int $id): int;
 
-    public function createPost(string $title, string $content, array $categories, array $tags): int;
+    public function getSite(int $id): ?WordpressWebsite;
 }
