@@ -1,22 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace Cornatul\Feeds\Http\Controllers;
+namespace Cornatul\Wordpress\Http\Controllers;
 
-use Cornatul\Feeds\Interfaces\ArticleRepositoryInterface;
-use Cornatul\Feeds\Interfaces\FeedFinderInterface;
-use Cornatul\Feeds\Interfaces\FeedRepositoryInterface;
-use Cornatul\Feeds\Jobs\FeedExtractor;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
+
+use Cornatul\Wordpress\Actions\WordpressDeleteAction;
+use Cornatul\Wordpress\Actions\WordpressStoreAction;
+use Cornatul\Wordpress\Interfaces\WordpressRepositoryInterface;
+use Cornatul\Wordpress\Repositories\Interfaces\WebsiteRepositoryInterface;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 use Illuminate\Contracts\View\View as ViewContract;
 class WordpressController extends Controller
 {
@@ -27,9 +22,30 @@ class WordpressController extends Controller
         $this->middleware('auth');
     }
 
-    public function index(): ViewContract
+    public function index(WebsiteRepositoryInterface $wordpressRepository): ViewContract
     {
-        return view('wordpress::index');
+        $wordpressSites = $wordpressRepository->paginate();
+
+        return view('wordpress::index', compact('wordpressSites'));
+    }
+
+    public function create(): ViewContract
+    {
+        return view('wordpress::create');
+    }
+
+    public function store(WordpressStoreAction $action): RedirectResponse
+    {
+        $action->handle();
+
+        return redirect()->route('wordpress.index')->with('success', 'Wordpress site created successfully');
+    }
+
+    public function delete(int $id,WordpressDeleteAction $action): RedirectResponse
+    {
+        $action->handle($id);
+
+        return redirect()->route('wordpress.index')->with('success', 'Wordpress site deleted successfully');
     }
 
 }
