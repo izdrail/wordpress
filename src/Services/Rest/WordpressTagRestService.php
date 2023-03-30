@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Cornatul\Wordpress\Services\Rest;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Str;
 use JsonException;
@@ -23,7 +24,7 @@ class WordpressTagRestService
      */
     private function getTag(string $tag_name):?int
     {
-        $response = $this->client->get('v2/tags', [
+        $response = $this->client->get('v2/tags?search='.$tag_name, [
             'query' => ['slug' => $tag_name],
         ]);
 
@@ -42,16 +43,27 @@ class WordpressTagRestService
      */
     private function createTag(string $tag_name):?int
     {
-        $data = [
-            'name' => $tag_name,
-            'slug' => Str::slug($tag_name),
-        ];
-        $response = $this->client->post('v2/tags', [
-            'json' => $data,
-        ]);
-        if ($response->getStatusCode() === 201) {
-            $tag = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
-            return $tag['id'];
+        try {
+            $data = [
+                'name' => $tag_name,
+                'slug' => Str::slug($tag_name),
+            ];
+
+            $response = $this->client->post('v2/tags', [
+                'json' => $data,
+            ]);
+
+            if ($response->getStatusCode() === 400) {
+               return null;
+            }
+
+            if ($response->getStatusCode() === 201) {
+                $tag = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+
+                return $tag['id'];
+            }
+        } catch (ClientException $e) {
+            return null;
         }
         return null;
     }
@@ -60,9 +72,11 @@ class WordpressTagRestService
      * @throws JsonException
      * @throws GuzzleException
      */
-    public function getOrCreateTag(string $tag_name):int
+    public function getOrCreateTag(string $tag_name):?int
     {
         $tag_id = $this->getTag($tag_name);
+
+        logger()->info('Tag ID: ' . $tag_id);
         if ($tag_id) {
             return $tag_id;
         }

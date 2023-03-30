@@ -37,18 +37,6 @@ class WordpressPostRestService implements WordpressRestInterface
     {
         $this->buildWordpressClient($siteID);
 
-        $categoryIds = [];
-
-        $tagIds = [];
-
-        foreach ($data->categories as $category) {
-            $categoryIds[] = $this->categoryService->getOrCreateCategory($category);
-        }
-
-        foreach ($data->tags as $tag) {
-            $tagIds[] = $this->tagService->getOrCreateTag($tag);
-        }
-
         $postId = $this->getPost($data->title);
 
         if ($postId) {
@@ -59,10 +47,10 @@ class WordpressPostRestService implements WordpressRestInterface
             'title' => $data->title,
             'content' => $data->content,
             'status' => 'publish',
-            'categories' => $categoryIds,
-            'tags' => $tagIds,
             'meta_input' => $data->meta,
         ];
+
+        logger()->info('Creating post: ' . json_encode($content));
 
         $response = $this->client->post('v2/posts', [
             'json' => $content,

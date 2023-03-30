@@ -10,6 +10,8 @@ use LzoMedia\Wordpress\Services\WordpressTagRestService;
 class WordpressEloquentRepository implements WordpressEloquentInterface
 {
 
+
+
     public function createPost(array $data): bool
     {
         return $this->postRestService->getOrCreatePost(

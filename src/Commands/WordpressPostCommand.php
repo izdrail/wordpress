@@ -5,8 +5,10 @@ namespace Cornatul\Wordpress\Commands;
 
 use Carbon\Carbon;
 
+use Cornatul\Feeds\Models\Article;
 use Cornatul\Wordpress\DTO\WordpressPostDTO;
 
+use Cornatul\Wordpress\Jobs\WordpressRestPostCreator;
 use Cornatul\Wordpress\Repositories\Interfaces\WordpressRestInterface;
 use Cornatul\Wordpress\Services\Rest\WordpressPostRestService;
 use GuzzleHttp\Exception\GuzzleException;
@@ -25,31 +27,15 @@ class WordpressPostCommand extends Command
      */
     public function handle(WordpressPostRestService $postRestService): void
     {
-        $content = [
-            'title' => 'Other Test Post 7',
-            'content' => 'Test',
-            'status' => 'publish',
-            'date' => Carbon::now()->toDateTimeString(),
-            'categories' => [
-                'coding',
-                'work',
-                'development',
-            ],
-            'tags' => [
-                'development',
-                'services',
-                'php',
-            ],
-            'meta' => [
-                'image' => '',
-            ],
-        ];
 
+        $articles = Article::all();
 
-        $object = WordpressPostDTO::from($content);
+        foreach ($articles as $article) {
+            if (str_word_count($article->text) > 500) {
+                dispatch(new WordpressRestPostCreator($article, $postRestService))->onQueue('wordpress_publish');
+            }
 
-        $response = $postRestService->createPost($object, 1);
-
-        $this->info($response);
+            $this->info('Article ' . $article->id . ' was skipped publishing');
+        }
     }
 }

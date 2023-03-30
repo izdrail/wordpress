@@ -19,11 +19,11 @@ class WordpressCategoryRestService
      * @throws GuzzleException
      * @throws \JsonException
      */
-    public function getCategory(string $category_name):?int
+    public function getCategory(string $categoryName):?int
     {
-        $response = $this->client->get("v2/categories?search={$category_name}", [
+        $response = $this->client->get("v2/categories?search={$categoryName}", [
             'json' => [
-                'name' => $category_name
+                'name' => $categoryName
             ],
         ]);
 
@@ -73,14 +73,14 @@ class WordpressCategoryRestService
      * @throws GuzzleException
      * @throws \JsonException
      */
-    public function getOrCreateCategory(string $category_name):int
+    public function getOrCreateCategory(string $categoryName):int
     {
-        $category_id = $this->getCategory($category_name);
+        $category_id = $this->getCategory($categoryName);
 
         if ($category_id) {
             return $category_id;
         }
 
-        return $this->createCategory($category_name);
+        return $this->createCategory($categoryName);
     }
 }
