@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\Cache;
 use Saloon\Exceptions\InvalidResponseClassException;
 use Saloon\Exceptions\PendingRequestException;
 
+/**
+ * todo move this to a job
+ */
 class WordpressRestClient
 {
     private int $site_id;
@@ -46,13 +49,15 @@ class WordpressRestClient
 
         $connector->withBasicAuth($website->database_user, $website->database_pass);
 
-        $postDTO = new WordpressPostDTO([
+        //todo move te categories and tags to a new request
+        $postDTO = WordpressPostDTO::from([
             'title' => 'Test Post',
             'content' => 'Test Content',
             'status' => 'publish',
             'categories' => [1],
             'tags' => [1],
         ]);
+
         $response = $connector->send(new CreatePostRequest($postDTO));
 
         dd($response);
