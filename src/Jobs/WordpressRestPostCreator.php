@@ -23,7 +23,7 @@ use LzoMedia\Wordpress\Objects\PostObject;
  * @todo Rewrite this
  * Class CreateWordpressPost
  */
-class WordpressRestPostCreator implements ShouldQueue
+class WordpressRestPostCreator
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -40,7 +40,7 @@ class WordpressRestPostCreator implements ShouldQueue
         $this->wordpressRestInterface = $wordpressRestInterface;
     }
 
-    final public function handle(): void
+    final public function handle(): int
     {
 
         $entities = $this->article->entities;
@@ -76,7 +76,7 @@ class WordpressRestPostCreator implements ShouldQueue
         $object = WordpressPostDTO::from($content);
 
         //todo rewrite this to use the wordpress rest interface
-        $response = $this->wordpressRestInterface->createPost($object, 5);
+        $response = $this->wordpressRestInterface->createPost($object, 1);
 
         if ($response) {
             $categoryIds = [];
@@ -96,5 +96,6 @@ class WordpressRestPostCreator implements ShouldQueue
             }
             //todo dispatch the attach categories and tags
         }
+        return $response;
     }
 }

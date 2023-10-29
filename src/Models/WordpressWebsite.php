@@ -20,6 +20,10 @@ class WordpressWebsite extends Model
 {
     protected $table = 'wordpress_websites';
 
+    /**
+     * @todo Add fillable fields
+     * @var string[] $fillable
+     */
     protected $fillable = [
         'database_host',
         'database_user',

@@ -6,11 +6,13 @@ namespace Cornatul\Wordpress\Commands;
 use Carbon\Carbon;
 
 use Cornatul\Feeds\Models\Article;
+use Cornatul\Wordpress\Clients\WordpressRestClient;
 use Cornatul\Wordpress\DTO\WordpressPostDTO;
 
 use Cornatul\Wordpress\Jobs\WordpressRestPostCreator;
 use Cornatul\Wordpress\Repositories\Interfaces\WordpressRestInterface;
 use Cornatul\Wordpress\Services\Rest\WordpressPostRestService;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 
@@ -20,6 +22,14 @@ class WordpressPostCommand extends Command
 
     protected $description = 'This command will post a selected article to wordpress';
 
+    protected ClientInterface $client;
+
+    public function __construct(ClientInterface $client)
+    {
+        parent::__construct();
+
+        $this->client = $client;
+    }
 
     /**
      * @throws GuzzleException
@@ -31,11 +41,10 @@ class WordpressPostCommand extends Command
         $articles = Article::all();
 
         foreach ($articles as $article) {
-            if (str_word_count($article->text) > 500) {
-                dispatch(new WordpressRestPostCreator($article, $postRestService))->onQueue('wordpress_publish');
-            }
 
-            $this->info('Article ' . $article->id . ' was skipped publishing');
+            $client = new WordpressRestClient(1);;
+            $response = $client->handle();
+
         }
     }
 }

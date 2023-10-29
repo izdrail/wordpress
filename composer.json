@@ -25,7 +25,7 @@
         "php": "^8.1",
         "guzzlehttp/guzzle": ">=7.5.0",
         "illuminate/support": ">=9.0.0",
-        "jgrossi/corcel": "6.0.x-dev",
+        "jgrossi/corcel": "^7",
         "league/html-to-markdown": "^5.2@dev",
         "sammyjo20/saloon-cache-plugin": "^2.0",
         "sammyjo20/saloon-laravel": "^2.0",
