@@ -42,7 +42,7 @@ class WordpressPostCommand extends Command
 
         foreach ($articles as $article) {
 
-            $client = new WordpressRestClient(1);;
+            $client = new WordpressRestClient($article,1);;
             $response = $client->handle();
 
         }
