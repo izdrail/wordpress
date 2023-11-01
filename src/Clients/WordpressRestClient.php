@@ -21,6 +21,7 @@ use Cornatul\News\Requests\TrendingNewsRequest;
 use Cornatul\Social\DTO\TwitterTrendingDTO;
 use Cornatul\Wordpress\Connector\WordpressConnector;
 use Cornatul\Wordpress\DTO\WordpressPostDTO;
+use Cornatul\Wordpress\Models\WordpressWebsite;
 use Cornatul\Wordpress\Repositories\WebsiteRepository;
 use Cornatul\Wordpress\WordpressRequests\CreateCategoryRequest;
 use Cornatul\Wordpress\WordpressRequests\CreatePostRequest;
@@ -37,34 +38,29 @@ use Saloon\Exceptions\PendingRequestException;
 class WordpressRestClient
 {
     /**
-     * @todo the siteID should be a repository output class
      * @param Article $article
-     * @param int $siteID
+     * @param WordpressWebsite $website
      */
-    public function __construct(protected  Article $article, protected int $siteID  = 1)
+    public function __construct(private readonly Article $article, private readonly WordpressWebsite $website)
     {
-        $this->site_id = $siteID;
-        $this->article = $article;
     }
 
     /**
-     * todo move the logic of the website outside the client and pass it as a parameter
      * @throws \ReflectionException
      * @throws InvalidResponseClassException
      * @throws PendingRequestException
      */
     public final function handle(): void
     {
-        $websiteRepository = new WebsiteRepository();
 
-        $website = $websiteRepository->getSite($this->site_id);
+        $connector = new WordpressConnector($this->website->database_host);
 
-        $connector = new WordpressConnector($website->database_host);
-
-        $connector->withBasicAuth($website->database_user, $website->database_pass);
+        $connector->withBasicAuth($this->website->database_user, $this->website->database_pass);
 
         $category = collect($this->article->keywords)->first();
+
         $tags = collect($this->article->keywords)->slice(1, 5)->toArray();
+
         $postDTO = WordpressPostDTO::from([
             'title' => $this->article->title,
             'content' => $this->article->spacy,
@@ -78,6 +74,7 @@ class WordpressRestClient
         ]);
 
         $connector->send(new CreatePostRequest($postDTO));
+
     }
 
 
@@ -89,16 +86,14 @@ class WordpressRestClient
      */
     private function getOrCreateCategories(string $category): int
     {
-        $websiteRepository = new WebsiteRepository();
+        $connector = new WordpressConnector($this->website->database_host);
 
-        $website = $websiteRepository->getSite($this->site_id);
-
-        $connector = new WordpressConnector($website->database_host);
-
-        $connector->withBasicAuth($website->database_user, $website->database_pass);
+        $connector->withBasicAuth($this->website->database_user, $this->website->database_pass);
 
         $categoryRequest = $connector->send(new CreateCategoryRequest($category));
+
         $code = ($categoryRequest->collect('code')->first());
+
         if ($code === 'term_exists') {
             return $categoryRequest->collect('data')->collect('term_id')->toArray()['term_id'];
         }
