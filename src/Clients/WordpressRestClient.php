@@ -36,6 +36,11 @@ use Saloon\Exceptions\PendingRequestException;
  */
 class WordpressRestClient
 {
+    /**
+     * @todo the siteID should be a repository output class
+     * @param Article $article
+     * @param int $siteID
+     */
     public function __construct(protected  Article $article, protected int $siteID  = 1)
     {
         $this->site_id = $siteID;
@@ -43,11 +48,12 @@ class WordpressRestClient
     }
 
     /**
+     * todo move the logic of the website outside the client and pass it as a parameter
      * @throws \ReflectionException
      * @throws InvalidResponseClassException
      * @throws PendingRequestException
      */
-    public function handle(): void
+    public final function handle(): void
     {
         $websiteRepository = new WebsiteRepository();
 
@@ -58,17 +64,17 @@ class WordpressRestClient
         $connector->withBasicAuth($website->database_user, $website->database_pass);
 
         $category = collect($this->article->keywords)->first();
-
-        //todo move te categories and tags to a new request
+        $tags = collect($this->article->keywords)->slice(1, 5)->toArray();
         $postDTO = WordpressPostDTO::from([
             'title' => $this->article->title,
             'content' => $this->article->spacy,
             'status' => 'publish',
-            //todo add categories and tags that will be a new request
             'categories' => [
                 $this->getOrCreateCategories($category),
             ],
-            'tags' => [1],
+            'tags' => [
+                $this->getOrCreateTags($tags),
+            ],
         ]);
 
         $connector->send(new CreatePostRequest($postDTO));
@@ -100,8 +106,9 @@ class WordpressRestClient
         dd($categoryRequest->collect('data'));
     }
 
-    private function getOrCreateTags(): array
+    private function getOrCreateTags(array $tags): array
     {
+        //todo dispatch dhis to a job
         return [];
     }
 
