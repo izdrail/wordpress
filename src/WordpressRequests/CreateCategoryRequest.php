@@ -2,9 +2,9 @@
 
 namespace Cornatul\Wordpress\WordpressRequests;
 use Illuminate\Support\Str;
-use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Traits\Body\HasJsonBody;
 
 class CreateCategoryRequest extends Request implements HasBody

@@ -10,6 +10,7 @@ use Cornatul\Wordpress\Clients\WordpressRestClient;
 use Cornatul\Wordpress\DTO\WordpressPostDTO;
 
 use Cornatul\Wordpress\Jobs\WordpressRestPostCreator;
+use Cornatul\Wordpress\Models\WordpressWebsite;
 use Cornatul\Wordpress\Repositories\Interfaces\WordpressRestInterface;
 use Cornatul\Wordpress\Services\Rest\WordpressPostRestService;
 use GuzzleHttp\ClientInterface;
@@ -39,10 +40,11 @@ class WordpressPostCommand extends Command
     {
 
         $articles = Article::all();
+        $wordpressWebsite = WordpressWebsite::first();
 
         foreach ($articles as $article) {
 
-            $client = new WordpressRestClient($article,1);;
+            $client = new WordpressRestClient($article,$wordpressWebsite);
             $response = $client->handle();
 
         }

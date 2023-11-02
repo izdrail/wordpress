@@ -25,6 +25,7 @@ use Cornatul\Wordpress\Models\WordpressWebsite;
 use Cornatul\Wordpress\Repositories\WebsiteRepository;
 use Cornatul\Wordpress\WordpressRequests\CreateCategoryRequest;
 use Cornatul\Wordpress\WordpressRequests\CreatePostRequest;
+use Cornatul\Wordpress\WordpressRequests\CreateTagRequest;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Collection;
@@ -57,23 +58,27 @@ class WordpressRestClient
 
         $connector->withBasicAuth($this->website->database_user, $this->website->database_pass);
 
-        $category = collect($this->article->keywords)->first();
+        $category = collect(
+            json_decode($this->article->keywords, true)
+        )->first();
 
-        $tags = collect($this->article->keywords)->slice(1, 5)->toArray();
+        $categories =  $this->getOrCreateCategories($category);
+
+        $tags = $this->getOrCreateTags($this->article->keywords);
 
         $postDTO = WordpressPostDTO::from([
             'title' => $this->article->title,
             'content' => $this->article->spacy,
             'status' => 'publish',
             'categories' => [
-                $this->getOrCreateCategories($category),
+                $categories
             ],
-            'tags' => [
-                $this->getOrCreateTags($tags),
-            ],
+            'tags' => $tags,
         ]);
 
-        $connector->send(new CreatePostRequest($postDTO));
+       $response =  $connector->send(new CreatePostRequest($postDTO));
+
+       dd($response->body());
 
     }
 
@@ -98,13 +103,24 @@ class WordpressRestClient
             return $categoryRequest->collect('data')->collect('term_id')->toArray()['term_id'];
         }
 
-        dd($categoryRequest->collect('data'));
+        return $categoryRequest->collect('id')->first();
     }
 
-    private function getOrCreateTags(array $tags): array
+    private function getOrCreateTags(string $tags): array
     {
-        //todo dispatch dhis to a job
-        return [];
+        $tags = json_decode($tags, true);
+
+        $connector = new WordpressConnector($this->website->database_host);
+
+        $connector->withBasicAuth($this->website->database_user, $this->website->database_pass);
+
+        $ids = collect();
+
+        foreach ($tags as $tag) {
+            $response = $connector->send(new CreateTagRequest($tag));
+           $ids->push($response->collect('id')->first());
+        }
+        return ($ids->toArray());
     }
 
 }
