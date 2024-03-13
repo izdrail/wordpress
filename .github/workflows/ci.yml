@@ -16,8 +16,8 @@ jobs:
             - uses: php-actions/composer@v6
 
             - name: PHPUnit Tests
-              uses: php-actions/phpunit@v9
+              uses: php-actions/phpunit@master
               with:
-                  bootstrap: vendor/autoload.php
-                  configuration: phpunit.xml
-                  args: --coverage-text
+                bootstrap: vendor/autoload.php
+                configuration: phpunit.xml
+                args: --coverage-text --migrate-configuration

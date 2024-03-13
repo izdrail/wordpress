@@ -4,6 +4,11 @@ namespace Cornatul\Wordpress\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class WordpressCategory
+ * @package Cornatul\Wordpress\Models
+ * @property int $term_id
+ */
 class WordpressCategory extends Model
 {
     protected $table = 'wp_terms';

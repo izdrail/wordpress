@@ -5,10 +5,15 @@ namespace Cornatul\Wordpress\Commands;
 
 use Carbon\Carbon;
 
+use Cornatul\Feeds\Models\Article;
+use Cornatul\Wordpress\Clients\WordpressRestClient;
 use Cornatul\Wordpress\DTO\WordpressPostDTO;
 
+use Cornatul\Wordpress\Jobs\WordpressRestPostCreator;
+use Cornatul\Wordpress\Models\WordpressWebsite;
 use Cornatul\Wordpress\Repositories\Interfaces\WordpressRestInterface;
 use Cornatul\Wordpress\Services\Rest\WordpressPostRestService;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 
@@ -18,6 +23,14 @@ class WordpressPostCommand extends Command
 
     protected $description = 'This command will post a selected article to wordpress';
 
+    protected ClientInterface $client;
+
+    public function __construct(ClientInterface $client)
+    {
+        parent::__construct();
+
+        $this->client = $client;
+    }
 
     /**
      * @throws GuzzleException
@@ -25,31 +38,15 @@ class WordpressPostCommand extends Command
      */
     public function handle(WordpressPostRestService $postRestService): void
     {
-        $content = [
-            'title' => 'Other Test Post 7',
-            'content' => 'Test',
-            'status' => 'publish',
-            'date' => Carbon::now()->toDateTimeString(),
-            'categories' => [
-                'coding',
-                'work',
-                'development',
-            ],
-            'tags' => [
-                'development',
-                'services',
-                'php',
-            ],
-            'meta' => [
-                'image' => '',
-            ],
-        ];
 
+        $articles = Article::all();
+        $wordpressWebsite = WordpressWebsite::first();
 
-        $object = WordpressPostDTO::from($content);
+        foreach ($articles as $article) {
 
-        $response = $postRestService->createPost($object, 1);
+            $client = new WordpressRestClient($article,$wordpressWebsite);
+            $response = $client->handle();
 
-        $this->info($response);
+        }
     }
 }

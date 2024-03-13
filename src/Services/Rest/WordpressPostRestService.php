@@ -35,36 +35,23 @@ class WordpressPostRestService implements WordpressRestInterface
      */
     public function createPost(WordpressPostDTO $data, int $siteID): int
     {
-        $this->buildWordpressClient($siteID);
+        $client = $this->buildWordpressClient($siteID);
 
-        $categoryIds = [];
+//        $postId = $this->getPost($data->title);
+//
+//        if ($postId) {
+//            return $postId;
+//        }
 
-        $tagIds = [];
-
-        foreach ($data->categories as $category) {
-            $categoryIds[] = $this->categoryService->getOrCreateCategory($category);
-        }
-
-        foreach ($data->tags as $tag) {
-            $tagIds[] = $this->tagService->getOrCreateTag($tag);
-        }
-
-        $postId = $this->getPost($data->title);
-
-        if ($postId) {
-            return $postId;
-        }
 
         $content = [
             'title' => $data->title,
             'content' => $data->content,
             'status' => 'publish',
-            'categories' => $categoryIds,
-            'tags' => $tagIds,
             'meta_input' => $data->meta,
         ];
 
-        $response = $this->client->post('v2/posts', [
+        $response = $client->post('v2/posts', [
             'json' => $content,
         ]);
 
@@ -109,7 +96,7 @@ class WordpressPostRestService implements WordpressRestInterface
      * @method private buildWordpressClient
      * @throws \Exception
      */
-    private function buildWordpressClient(int $siteID): void
+    private function buildWordpressClient(int $siteID): Client
     {
         $website = $this->websiteRepository->getSite($siteID);
 
@@ -117,7 +104,7 @@ class WordpressPostRestService implements WordpressRestInterface
             throw new \RuntimeException('Website not found');
         }
 
-        $this->client = new Client([
+        return new Client([
             'base_uri'        => $website->database_host,
             'timeout'         => 0,
             'allow_redirects' => true,
@@ -130,8 +117,8 @@ class WordpressPostRestService implements WordpressRestInterface
             ],
         ]);
 
-        $this->categoryService = new WordpressCategoryRestService($this->client);
+        //$this->categoryService = new WordpressCategoryRestService($this->client);
 
-        $this->tagService = new WordpressTagRestService($this->client);
+        //$this->tagService = new WordpressTagRestService($this->client);
     }
 }
